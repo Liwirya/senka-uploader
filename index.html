@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Senka Uploader - Unggah & Bagikan File</title>   
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">   
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6oNsWfGAf3IINokB/xLcFNjGkL/W6yW1sJ1L9/d4f4z3Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
+
+    <style type="text/tailwindcss">
+        @layer base {
+            html {
+                font-family: 'Poppins', system-ui, sans-serif;
+                scroll-behavior: smooth;
+            }
+            body {
+                background: linear-gradient(135deg, #0f0f17 0%, #1a1a2e 50%, #16213e 100%);
+                background-attachment: fixed;
+            }
+        }
+        
+        /* Custom scrollbar for history */
+        #uploadHistory::-webkit-scrollbar {
+            width: 8px;
+        }
+        #uploadHistory::-webkit-scrollbar-track {
+            background: #2a3040;
+            border-radius: 10px;
+        }
+        #uploadHistory::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 10px;
+        }
+        #uploadHistory::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        
+        /* Custom animations and effects */
+        .gradient-text {
+            background: linear-gradient(90deg, #00c6ff, #0072ff, #8e2de2, #4a00e0);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 8s ease infinite;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border-color: rgba(142, 45, 226, 0.3);
+        }
+        
+        .btn-glow {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+        .btn-glow:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+        }
+        
+        .file-drop-zone {
+            transition: all 0.3s ease;
+            border: 2px dashed #475569;
+        }
+        .file-drop-zone.drag-over {
+            border-color: #3b82f6;
+            background-color: rgba(59, 130, 246, 0.1);
+            transform: scale(1.02);
+        }
+        
+        .result-item {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+        .result-item.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .history-item {
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all 0.3s ease;
+        }
+        .history-item.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .floating-element {
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .glow-effect {
+            box-shadow: 0 0 30px rgba(142, 45, 226, 0.1);
+            transition: box-shadow 0.3s ease;
+        }
+        .glow-effect:hover {
+            box-shadow: 0 0 40px rgba(142, 45, 226, 0.2);
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen relative overflow-x-hidden">
+
+    <div class="fixed inset-0 pointer-events-none overflow-hidden">
+        <div class="absolute top-20 left-10 w-2 h-2 bg-sky-400 rounded-full opacity-60 floating-element" style="animation-delay: 0s;"></div>
+        <div class="absolute top-40 right-20 w-1 h-1 bg-violet-400 rounded-full opacity-40 floating-element" style="animation-delay: 1s;"></div>
+        <div class="absolute bottom-32 left-1/4 w-1.5 h-1.5 bg-pink-400 rounded-full opacity-50 floating-element" style="animation-delay: 2s;"></div>
+        <div class="absolute bottom-20 right-1/3 w-1 h-1 bg-cyan-400 rounded-full opacity-30 floating-element" style="animation-delay: 3s;"></div>
+    </div>
+
+    <main class="w-full max-w-3xl mx-auto my-12 px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="card-hover bg-slate-900/50 backdrop-blur-xl border border-slate-700/50 rounded-3xl shadow-2xl shadow-black/30 p-8 sm:p-12 glow-effect">
+            
+            <div class="text-center mb-12 relative">
+                <div class="absolute -top-6 -left-6 w-16 h-16 bg-gradient-to-br from-sky-500/20 to-violet-500/20 rounded-full blur-xl"></div>
+                <div class="absolute -bottom-6 -right-6 w-20 h-20 bg-gradient-to-tr from-pink-500/10 to-orange-500/10 rounded-full blur-xl"></div>
+                
+                <h2 class="text-5xl md:text-6xl font-bold tracking-tight gradient-text mb-4 relative z-10">
+                    Senka Uploader
+                </h2>
+                <p class="text-slate-300 mt-4 text-lg max-w-2xl mx-auto leading-relaxed">
+                    Platform canggih untuk mengunggah dan berbagi file Anda dengan cepat, aman, dan mudah.
+                </p>
+                
+                <div class="mt-6 flex justify-center">
+                    <a href="./public/docs.html" target="_blank" class="group flex items-center gap-2 bg-slate-800/50 hover:bg-slate-700/50 text-sky-300 font-medium py-2 px-5 rounded-xl border border-slate-600/50 transition-all duration-300 hover:border-sky-500/50 hover:shadow-lg hover:shadow-sky-500/20">
+                        <i class="fas fa-book mr-1"></i> 
+                        <span>Dokumentasi API</span>
+                        <i class="fas fa-arrow-right ml-1 text-xs group-hover:translate-x-1 transition-transform duration-300"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="relative my-10">
+                <label for="fileInput" class="file-drop-zone block p-12 border-2 border-dashed border-slate-600 rounded-3xl text-center cursor-pointer bg-slate-800/20 transition-all duration-300 ease-in-out hover:border-sky-500 hover:bg-slate-800/50 [&.drag-over]:border-sky-500 [&.drag-over]:bg-slate-800/50">
+                    
+                    <div class="flex flex-col items-center">
+                        <div class="w-20 h-20 bg-gradient-to-br from-sky-500 to-violet-500 rounded-full flex items-center justify-center mb-6 shadow-lg">
+                            <i class="fas fa-cloud-upload-alt text-white text-3xl"></i>
+                        </div>
+                        
+                        <h3 class="text-2xl font-semibold text-slate-200 mb-3">Unggah File Anda</h3>
+                        
+                        <span class="mt-2 block text-slate-300 text-lg font-medium">
+                            Tarik & lepas file ke sini atau 
+                            <span class="text-sky-400 font-bold">klik untuk memilih</span>
+                        </span>
+                        <span class="block text-sm text-slate-400 mt-3">
+                            <i class="fas fa-info-circle mr-2 text-sky-400"></i>
+                            Mendukung semua format file hingga <span class="font-bold text-sky-300">50MB</span>
+                        </span>
+                        
+                        <div class="mt-6 flex flex-wrap justify-center gap-4 text-xs">
+                            <span class="bg-slate-700/50 px-3 py-1 rounded-full text-slate-300">JPG, PNG, GIF</span>
+                            <span class="bg-slate-700/50 px-3 py-1 rounded-full text-slate-300">PDF, DOC, XLS</span>
+                            <span class="bg-slate-700/50 px-3 py-1 rounded-full text-slate-300">MP4, MOV, AVI</span>
+                            <span class="bg-slate-700/50 px-3 py-1 rounded-full text-slate-300">MP3, WAV</span>
+                        </div>
+                    </div>
+                </label>
+                <input type="file" id="fileInput" class="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"/>
+            </div>
+            
+            <div id="selectedFile" class="hidden mt-8 p-6 bg-slate-800/50 rounded-2xl border border-slate-700/50 flex-col gap-3 transition-all duration-300">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <span id="fileIcon" class="mr-4 text-2xl w-8 text-center flex-shrink-0"></span>
+                        <div class="flex-1">
+                            <span id="fileNameDisplay" class="text-slate-100 font-semibold block truncate"></span>
+                            <span id="fileSize" class="text-sm text-slate-400 mt-1"></span>
+                        </div>
+                    </div>
+                    <button id="clearFileBtn" class="ml-4 p-2 text-slate-400 hover:text-red-500 transition rounded-lg hover:bg-red-500/10">
+                        <i class="fas fa-times-circle text-lg"></i>
+                    </button>
+                </div>
+                
+                <div id="imagePreviewContainer" class="hidden mt-4 bg-slate-900 rounded-xl border border-slate-700 p-4 text-center max-h-96 overflow-hidden">
+                    <p class="text-slate-400 text-sm mb-3 font-medium">Pratinjau Gambar:</p>
+                    <div class="max-h-80 overflow-hidden rounded-lg border border-slate-600">
+                        <img id="imagePreview" src="" alt="Image Preview" class="max-w-full h-auto mx-auto object-contain">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8">
+                <button id="uploadBtn" class="w-full py-4 px-8 bg-gradient-to-r from-sky-500 via-blue-500 to-violet-600 rounded-xl text-white font-bold text-lg uppercase tracking-wide transition-all duration-300 ease-in-out shadow-lg hover:shadow-xl hover:shadow-blue-500/30 hover:scale-[1.03] disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 disabled:shadow-lg transform">
+                    <span class="flex items-center justify-center gap-2">
+                        <i class="fas fa-upload"></i>
+                        <span>Upload File Sekarang</span>
+                    </span>
+                </button>
+            </div>
+            
+            <div class="mt-12">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold text-slate-200 flex items-center gap-3">
+                        <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-check text-white text-sm"></i>
+                        </div>
+                        Hasil Upload
+                    </h3>
+                    <div class="text-sm text-slate-400">
+                        <i class="fas fa-lightbulb text-yellow-400 mr-1"></i>
+                        Klik URL untuk menyalin
+                    </div>
+                </div>
+                
+                <div id="urlResult" class="bg-slate-900/70 p-6 rounded-2xl mt-2 border border-slate-700 min-h-[140px] flex flex-col transition-all duration-300 text-sm 
+                                         empty:justify-center empty:items-center empty:text-center 
+                                         empty:before:content-['Hasil_akan_ditampilkan_di_sini.'] empty:before:text-slate-500 empty:before:text-lg
+                                         empty:before:font-medium
+                                         [&:not(:empty)]:items-stretch [&:not(:empty)]:text-left">
+                </div>
+            </div>
+
+            <div class="mt-14">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold text-slate-200 flex items-center gap-3">
+                        <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-history text-white text-sm"></i>
+                        </div>
+                        Riwayat Upload
+                    </h3>
+                    <div class="text-sm text-slate-400">
+                        <span id="historyCount">0</span> file diunggah
+                    </div>
+                </div>
+                
+                <div id="uploadHistory" class="bg-slate-900/70 p-6 rounded-2xl mt-2 border border-slate-700 min-h-[120px] max-h-96 overflow-y-auto flex flex-col gap-4
+                                          empty:justify-center empty:items-center empty:text-center
+                                          empty:before:content-['Riwayat_upload_akan_muncul_di_sini.'] empty:before:text-slate-500 empty:before:text-lg empty:before:font-medium">
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <div id="notificationModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 hidden transition-opacity duration-300 opacity-0">
+        <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl max-w-md w-full border border-slate-700 text-center relative transform transition-all duration-300 scale-95">
+            <button id="closeModal" class="absolute top-4 right-4 text-slate-400 hover:text-slate-200 text-2xl hover:bg-slate-700 rounded-full w-8 h-8 flex items-center justify-center transition-colors">
+                <i class="fas fa-times"></i>
+            </button>
+            <div id="modalIcon" class="text-6xl mb-6"></div>
+            <h4 id="modalTitle" class="text-2xl font-bold mb-3 text-slate-100"></h4>
+            <p id="modalMessage" class="text-slate-300 text-lg leading-relaxed"></p>
+            <button id="modalActionBtn" class="mt-6 py-3 px-6 bg-gradient-to-r from-sky-600 to-violet-600 rounded-lg text-white font-bold hover:from-sky-500 hover:to-violet-500 transition-all duration-300 transform hover:scale-105 hidden">
+                OK
+            </button>
+        </div>
+    </div>
+
+    <footer class="text-center text-slate-500 text-sm mb-8">
+        <div class="flex justify-center items-center gap-2 mb-2">
+            <div class="w-6 h-1 bg-gradient-to-r from-sky-400 to-violet-500 rounded-full"></div>
+            <i class="fas fa-heart text-red-500 animate-pulse"></i>
+            <div class="w-6 h-1 bg-gradient-to-r from-violet-500 to-sky-400 rounded-full"></div>
+        </div>
+        <p>© 2025 Liwirya.</p>
+    </footer>
+
+    <script src="./public/index/index.js"></script>
+</body>
+</html>
