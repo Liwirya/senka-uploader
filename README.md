@@ -191,4 +191,4 @@ Butuh bantuan? Hubungi kami:
 
 ---
 
-**Dibuat dengan oleh Liwirya**
+**Dibuat oleh Liwirya**
