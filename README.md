@@ -166,7 +166,7 @@ http://localhost:5000/files/12345-abcde.jpg
 |------------|----------|--------|
 | `400 Bad Request` | Tidak ada file yang dikirim | Pastikan form data berisi field 'file' |
 | `404 Not Found` | File tidak ditemukan | Periksa nama file atau upload ulang |
-| `413 Payload Too Large` | File terlalu besar | Kompres file atau naikkan batas di .env |
+| `413 Payload Too Large` | File terlalu besar | Kompres file |
 | `500 Internal Server Error` | Masalah server | Periksa koneksi Supabase atau log error |
 
 ---
