@@ -39,7 +39,7 @@
 
 ### Langkah 1: Clone Repositori
 ```bash
-git clone https://github.com/username/senka-uploader.git
+git clone https://github.com/Liwirya/senka-uploader.git
 cd senka-uploader
 ```
 
